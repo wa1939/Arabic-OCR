@@ -1,82 +1,84 @@
-# OCR العربي على ويندوز (Tesseract + OCRmyPDF)
+# Arabic OCR on Windows (Tesseract + OCRmyPDF)
 
-هذا المشروع يقدّم سكربت بسيط وعملي لـ **استخراج النص العربي من ملفات PDF** بدقّة عالية على نظام **Windows** بالاعتماد على:
-- **Tesseract 5** مع نموذج العربية **tessdata_best** (أعلى دقّة مجانية).
-- **OCRmyPDF** كغلاف ذكي يقوم بتنظيف الصور، تدوير الصفحات، تصحيح الميل، وإنتاج **PDF قابل للبحث** + ملف نصي جانبي (sidecar).
+This repo provides a **fast, high‑accuracy, fully local** pipeline to extract **Arabic text from PDFs** on **Windows** using:
+- **Tesseract 5** with the Arabic model from **tessdata_best** (highest free accuracy).
+- **OCRmyPDF** as the smart wrapper that auto‑rotates, deskews, cleans pages, and produces a **searchable PDF** plus a sidecar TXT file.
 
-> ⚠️ ملاحظة واقعية: الوصول إلى *صفر أخطاء* في OCR غير ممكن، خصوصًا مع العربية (خطوط/جودة مسح/تشكيل). الإعدادات هنا تعطيك مزيجًا ممتازًا من **الدقّة** و**السرعة** و**حجم ملف معقول**.
-
----
-
-## ✅ المخرجات
-- ملف PDF قابل للبحث: `*_OCR.pdf`
-- ملف نص خام موثوق: `*_OCR.txt` (مهم جدًا للسيرش/الفهرسة ولتجاوز قيود عرض RTL في بعض قارئات الـPDF).
+> ℹ️ Reality check: *Zero* OCR errors is not realistic, especially with Arabic (fonts, scan quality, diacritics). The settings here balance **accuracy**, **speed**, and **reasonable file sizes** for long PDFs.
 
 ---
 
-## 🧩 المتطلبات (Windows)
-- **Python 3.10+** (مُفضّل عبر Chocolatey).
-- **Tesseract OCR** (مع لغة العربية `ara` من **tessdata_best**).
-- **Ghostscript** (يعتمد عليه OCRmyPDF).
-- **OCRmyPDF** (تُثبت عبر pip).
-- (اختياري) **pngquant** لضغط الصور الملونة أكثر.
-
-> سيتم تثبيت Python/Tesseract/Ghostscript وpngquant عبر **Chocolatey**، و OCRmyPDF عبر **pip**.  
-> **TESSDATA_PREFIX** يجب أن يشير إلى مجلد `tessdata` الخاص بتيسراكت.
+## ✅ Outputs
+- Searchable PDF: `*_OCR.pdf`
+- Plain text sidecar: `*_OCR.txt` — strongly recommended for search/indexing and to bypass some RTL quirks in certain PDF viewers.
 
 ---
 
-## ⚡️ تثبيت سريع (PowerShell - كمسؤول)
-> إن لم يكن لديك Chocolatey مسبقًا، ثبّته أولًا من موقعه الرسمي. ثم نفّذ:
+## 🧩 Requirements (Windows)
+**System (install via Chocolatey):**
+- Python 3.10+
+- Tesseract OCR
+- Ghostscript
+- (Optional) pngquant (better compression for color images)
+
+**Python:**
+- `ocrmypdf` (installed via `pip`)
+
+> Ensure **TESSDATA_PREFIX** points to your Tesseract `tessdata` directory. You must install **Arabic model (ara)** from **tessdata_best**.
+
+---
+
+## ⚡️ Quick Install (PowerShell — Run as Administrator)
+If you don’t have Chocolatey, install it from its official site first. Then run:
 
 ```powershell
-# 1) ثبّت الأدوات النظامية
+# 1) System tools
 choco install -y python3 tesseract ghostscript pngquant
 
-# 2) ثبّت باقة بايثون
+# 2) Python packages
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# 3) أضف نموذج العربية من tessdata_best
+# 3) Arabic model from tessdata_best
 Invoke-WebRequest `
   https://github.com/tesseract-ocr/tessdata_best/raw/main/ara.traineddata `
   -OutFile "C:\Program Files\Tesseract-OCR\tessdata\ara.traineddata"
 
-# 4) عرّف مسار نماذج تيسراكت (مرة واحدة)
+# 4) Make sure Tesseract knows where models live
 [Environment]::SetEnvironmentVariable('TESSDATA_PREFIX', 'C:\Program Files\Tesseract-OCR\tessdata', 'Machine')
 $env:TESSDATA_PREFIX='C:\Program Files\Tesseract-OCR\tessdata'
 
-# 5) تحقق أن كل شيء تمام
+# 5) Sanity checks
 tesseract --version
-tesseract --list-langs     # تأكد أن "ara" موجودة
+tesseract --list-langs     # "ara" should be listed
 ocrmypdf --version
 ```
 
-> إذا ظهرت لك مشكلة صلاحيات، افتح PowerShell **كـمسؤول**.  
-> إذا لم تظهر `ara` ضمن اللغات، تأكد من أن `ara.traineddata` موجود في مسار `tessdata` الصحيح، وأن **TESSDATA_PREFIX** مضبوط.
+> If you see permission issues, reopen PowerShell **as Administrator**. If `ara` is missing, confirm `ara.traineddata` is in the correct `tessdata` directory and that **TESSDATA_PREFIX** is set.
 
 ---
 
-## 🗂️ بنية المشروع المقترحة
+## 🗂️ Suggested Project Layout
 ```
 OCR/
-├─ app.py           # سكربت التشغيل
-├─ requirements.txt # تبع pip
+├─ app.py           # main script
+├─ requirements.txt # Python deps
 └─ README.md
 ```
 
 ---
 
-## ▶️ طريقة التشغيل (بايثون)
-- ضع ملفك مثلًا هنا: `C:\Users\waok\Downloads\سياسة شركة علم.pdf`
-- ثم شغّل (من داخل مجلد المشروع):
+## ▶️ How to Run (Python script)
+Place your PDF somewhere (example):
+`C:\Users\waok\Downloads\سياسة شركة علم.pdf`
+
+From the project folder:
 ```powershell
 python app.py "C:\Users\waok\Downloads\سياسة شركة علم.pdf" "C:\Users\waok\Downloads\سياسة شركة علم_OCR.pdf"
 ```
-> إذا لم تمرّر مسارًا، السكربت يستخدم قيمة افتراضية داخل `app.py`.  
-> سيُنتج أيضًا ملفًا نصيًا جانبيًا بجانب الـPDF: `..._OCR.txt`.
+If you omit arguments, `app.py` uses a default input path inside the script. The script also writes a sidecar TXT next to your output PDF: `..._OCR.txt`.
 
-### مثال مباشر (سطر أوامر OCRmyPDF بدون بايثون)
+### Direct CLI (no Python)
 ```powershell
 ocrmypdf -l ara --jobs 8 `
   --rotate-pages --deskew --clean --remove-background `
@@ -86,29 +88,30 @@ ocrmypdf -l ara --jobs 8 `
   "C:\Users\waok\Downloads\سياسة شركة علم.pdf" `
   "C:\Users\waok\Downloads\سياسة شركة علم_OCR.pdf"
 ```
-> إن ظهرت رسالة *page already has text* وتريد إجبار الـOCR: أضف `--force-ocr`.
+> If you see *“page already has text”* and still want to force OCR, add `--force-ocr`.
 
 ---
 
-## 🧠 ماذا يفعل السكربت؟ (ملخّص الإعدادات)
-- **لغة العربية**: `language="ara"` (يمكن إضافة `+eng` إذا عندك نص مختلط).
-- **تحسين الصور**: تدوير تلقائي/تصحيح الميل/تنظيف الخلفية قبل الـOCR.
-- **محرّك Tesseract**: LSTM-only (أدق)، وتقسيم صفحة تلقائي (PSM=3) مناسب لمعظم الوثائق.
-- **إخراج PDF**: `pdf_renderer="hocr"` أنسب للـRTL، و`output_type="pdf"` لحجم أصغر من PDF/A.
-- **ملف نصي جانبي**: `sidecar="*.txt"` نص خام موثوق للفهرسة/التحليل.
-- **تعدد الأنوية**: `jobs` لاستغلال المعالج وتسريع المعالجة.
+## 🧠 What the Script Does (Key Settings)
+- **Language**: `ara` (add `+eng` if your content is mixed).
+- **Preprocessing**: Auto‑rotate, deskew, and background clean **before** OCR for better accuracy.
+- **Tesseract engine**: LSTM‑only (most accurate) with automatic page segmentation (PSM 3) — good default for diverse document layouts.
+- **PDF rendering**: `pdf_renderer="hocr"` works better with RTL languages in many viewers.
+- **Output type**: `output_type="pdf"` (smaller than PDF/A).
+- **Sidecar**: `*_OCR.txt` is reliable for search/indexing and downstream NLP.
+- **Parallelism**: `jobs` leverages CPU cores to speed up long PDFs.
 
 ---
 
-## ✍️ كود `app.py` المقترح
-> مهيأ لأعلى دقّة مجانية مع حجم ملف منطقي على ويندوز.
+## ✍️ Suggested `app.py`
+> Tuned for highest free accuracy with reasonable output size on Windows.
 
 ```python
 import os, sys, pathlib
 import ocrmypdf
 
 def main(input_path: str, output_path: str | None = None):
-    # تأكيد مسار نماذج تيسراكت (tessdata_best)
+    # Ensure Tesseract models path (tessdata_best) is known
     os.environ.setdefault("TESSDATA_PREFIX", r"C:\Program Files\Tesseract-OCR\tessdata")
 
     p_in = pathlib.Path(input_path)
@@ -116,11 +119,11 @@ def main(input_path: str, output_path: str | None = None):
         output_path = str(p_in.with_name(p_in.stem + "_OCR.pdf"))
     sidecar = str(pathlib.Path(output_path).with_suffix(".txt"))
 
-    # ملاحظة: إذا كانت صور الـPDF أصلًا 300dpi+ احذف oversample=300
+    # NOTE: If your PDF is truly 300 dpi or higher, remove oversample=300
     ocrmypdf.ocr(
         str(p_in),
         output_path,
-        language="ara",                 # أضف +eng إذا فيه إنجليزي/أرقام
+        language="ara",                 # add +eng if you have mixed Arabic/English
         rotate_pages=True,
         deskew=True,
         clean=True,
@@ -129,8 +132,8 @@ def main(input_path: str, output_path: str | None = None):
         output_type="pdf",
         pdf_renderer="hocr",
         tesseract_oem=1,                # LSTM only
-        tesseract_pagesegmode=3,        # تقسيم تلقائي
-        oversample=300,                 # احذفها لو ملفاتك عالية الـDPI
+        tesseract_pagesegmode=3,        # automatic page segmentation
+        oversample=300,                 # drop this if input is already >=300 dpi
         sidecar=sidecar,
         jobs=max(1, (os.cpu_count() or 8) - 1),
     )
@@ -149,33 +152,33 @@ if __name__ == "__main__":
 
 ---
 
-## 🛠️ ضبط الجودة/السرعة (Tesseract)
-- **PSM (تقسيم الصفحة)**:  
-  - `tesseract_pagesegmode=3` (تلقائي) جيد لمعظم الوثائق.  
-  - `=6` ممتاز لصفحة نصية موحّدة الفقرات.  
-- **OEM (المحرّك)**:  
-  - `tesseract_oem=1` (LSTM) هو الأكثر دقّة عمومًا.
-- **لغة إضافية**:  
-  - `language="ara+eng"` إذا المحتوى مختلط؛ تجنّب إضافة لغات لا تحتاجها كي لا تنخفض الدقّة.
-- **Oversample**:  
-  - استخدم `oversample=300` فقط إذا الـPDF أقل من 300dpi. Otherwise احذفه لتقليل الحجم.
+## 🔧 Quality & Speed Tuning
+- **PSM (page segmentation):**
+  - `tesseract_pagesegmode=3` is a strong default for varied layouts.
+  - `=6` is great for uniform text blocks (paragraph pages).
+- **OEM (engine):**
+  - `tesseract_oem=1` (LSTM‑only) is typically the most accurate.
+- **Languages:**
+  - Use `ara+eng` only if needed; adding more languages can sometimes degrade accuracy.
+- **Oversample:**
+  - Keep `oversample=300` only when scans are below 300 dpi. Otherwise remove it to reduce output size.
 
 ---
 
-## 🧰 مشاكل شائعة وحلول سريعة
-- **`WinError 2 / command not found`**: أضف مسارات Tesseract/Ghostscript إلى PATH أو أعد فتح PowerShell كمسؤول.  
-- **`Tesseract couldn’t load any languages`**: تأكد من `TESSDATA_PREFIX` والملف `ara.traineddata` في مجلد `tessdata`.  
-- **حجم إخراج ضخم**:  
-  - استخدم `output_type="pdf"` بدل PDF/A الافتراضي.  
-  - اجعل `optimize=3`.  
-  - احذف `oversample` إن لم تكن بحاجة له.  
-  - وجود `jbig2` غير متاح عادة على ويندوز؛ تجاهله آمن (فقط تفقد ضغط B/W).  
-- **تحذير `lots of diacritics`**: تحذير معلوماتي يظهر مع العربية. حسّن جودة المصدر، وحافظ على 300dpi فعلي.  
-- **RTL داخل PDF**: بعض القارئات لا تتعامل تمامًا مع العربية داخل طبقة النص. اعتمد على `*_OCR.txt` للبحث والتحليل، أو جرّب قارئًا آخر.
+## 🧰 Troubleshooting
+- **`WinError 2` / “command not found”**: Add Tesseract and Ghostscript to your PATH or reopen PowerShell as Admin after install.
+- **“Tesseract couldn’t load any languages”**: Confirm `TESSDATA_PREFIX` and that `ara.traineddata` exists in the `tessdata` folder.
+- **Large output size**:
+  - Prefer `output_type="pdf"` (smaller than default PDF/A).
+  - Use `optimize=3`.
+  - Remove `oversample` if scans are already 300+ dpi.
+  - `jbig2` is commonly missing on Windows; it’s safe to ignore (only affects B/W compression).
+- **Warning `lots of diacritics`**: Informational; common with Arabic. Improve source quality and keep effective dpi around 300.
+- **RTL quirks in PDF viewers**: Some viewers struggle with Arabic text selection/search. Rely on the sidecar TXT or try another viewer.
 
 ---
 
-## 🧽 (اختياري) تصدير نص **بدون تشكيل**
+## 🧽 (Optional) Export TXT **without diacritics**
 ```python
 import re, io
 in_txt  = r"C:\path\to\file_OCR.txt"
@@ -184,7 +187,7 @@ out_txt = r"C:\path\to\file_OCR_no_diac.txt"
 with io.open(in_txt, "r", encoding="utf-8") as f:
     txt = f.read()
 
-# إزالة الحركات العربية الشائعة
+# Remove common Arabic diacritics
 txt_no_diac = re.sub(r"[\u064B-\u065F\u0670\u06D6-\u06ED]", "", txt)
 
 with io.open(out_txt, "w", encoding="utf-8") as f:
@@ -195,21 +198,21 @@ print("Saved:", out_txt)
 
 ---
 
-## 🧪 اختبار سريع
+## 🧪 Quick Test
 ```powershell
-# بدّل المسار بالملف لديك
+# Replace the path with your PDF
 python app.py "C:\Users\...\سياسة شركة علم.pdf"
-# راجع ناتج:
+# Check outputs:
 #   ...\سياسة شركة علم_OCR.pdf
 #   ...\سياسة شركة علم_OCR.txt
 ```
 
 ---
 
-## 📄 الترخيص
-حرّ/استخدم كما تشاء داخل شركتك. احترم تراخيص البرامج التابعة (Tesseract, OCRmyPDF).
+## 📄 License
+Free to use internally. Respect the upstream licenses (Tesseract, OCRmyPDF).
 
 ---
 
-## 💬 ملاحظات
-إذا رغبت في ملف Batch (.bat) يطلب منك المسار ويشغّل الإعدادات تلقائيًا، أخبرني لأضيفه لك بسرعة.
+## 💬 Need a one‑click `.bat`?
+I can include a Windows **Batch (.bat)** that asks for a PDF path and runs the same settings automatically (and writes the TXT next to it). Just say the word.
