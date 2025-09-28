@@ -70,11 +70,11 @@ OCR/
 
 ## ▶️ How to Run (Python script)
 Place your PDF somewhere (example):
-`C:\Users\waok\Downloads\سياسة شركة علم.pdf`
+`C:\Users\waok\Downloads\ARABIC PDF PATH .pdf`
 
 From the project folder:
 ```powershell
-python app.py "C:\Users\waok\Downloads\سياسة شركة علم.pdf" "C:\Users\waok\Downloads\سياسة شركة علم_OCR.pdf"
+python app.py "C:\Users\waok\Downloads\ARABIC PDF PATH .pdf" "C:\Users\waok\Downloads\ARABIC PDF PATH _OCR.pdf"
 ```
 If you omit arguments, `app.py` uses a default input path inside the script. The script also writes a sidecar TXT next to your output PDF: `..._OCR.txt`.
 
@@ -84,9 +84,9 @@ ocrmypdf -l ara --jobs 8 `
   --rotate-pages --deskew --clean --remove-background `
   --optimize 3 --output-type pdf `
   --pdf-renderer hocr `
-  --sidecar "C:\Users\waok\Downloads\سياسة شركة علم_OCR.txt" `
-  "C:\Users\waok\Downloads\سياسة شركة علم.pdf" `
-  "C:\Users\waok\Downloads\سياسة شركة علم_OCR.pdf"
+  --sidecar "C:\Users\waok\Downloads\ARABIC PDF PATH _OCR.txt" `
+  "C:\Users\waok\Downloads\ARABIC PDF PATH .pdf" `
+  "C:\Users\waok\Downloads\ARABIC PDF PATH _OCR.pdf"
 ```
 > If you see *“page already has text”* and still want to force OCR, add `--force-ocr`.
 
@@ -140,7 +140,7 @@ def main(input_path: str, output_path: str | None = None):
     print(f"✅ Done:\nPDF : {output_path}\nTXT : {sidecar}")
 
 if __name__ == "__main__":
-    default_input = r"C:\Users\waok\Downloads\سياسة شركة علم.pdf"
+    default_input = r"C:\Users\waok\Downloads\ARABIC PDF PATH .pdf"
     in_path = sys.argv[1] if len(sys.argv) > 1 else default_input
     out_path = sys.argv[2] if len(sys.argv) > 2 else None
     try:
@@ -201,10 +201,10 @@ print("Saved:", out_txt)
 ## 🧪 Quick Test
 ```powershell
 # Replace the path with your PDF
-python app.py "C:\Users\...\سياسة شركة علم.pdf"
+python app.py "C:\Users\...\ARABIC PDF PATH .pdf"
 # Check outputs:
-#   ...\سياسة شركة علم_OCR.pdf
-#   ...\سياسة شركة علم_OCR.txt
+#   ...\ARABIC PDF PATH _OCR.pdf
+#   ...\ARABIC PDF PATH _OCR.txt
 ```
 
 ---
