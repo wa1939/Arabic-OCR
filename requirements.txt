@@ -1,3 +1,4 @@
 # Python dependencies for the OCR project
 # System deps (install via Chocolatey): tesseract, ghostscript, pngquant (optional), python3
 ocrmypdf
+tk  # for the graphical user interface
