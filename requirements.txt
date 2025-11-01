@@ -2,3 +2,5 @@
 # System deps (install via Chocolatey): tesseract, ghostscript, pngquant (optional), python3
 ocrmypdf
 tk  # for the graphical user interface
+python-docx  # for Word document export
+pikepdf  # for PDF repair and optimization
